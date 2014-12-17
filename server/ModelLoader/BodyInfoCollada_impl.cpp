@@ -988,7 +988,11 @@ class ColladaReader : public daeErrorHandler
 		
 		int jointsid;
 		if ( sscanf(jointid.c_str(), "kmodel1/jointsid%d", &jointsid) ) {
-		    pjoint->jointId = jointsid;
+                  if(jointsid > 1000) {
+                    pjoint->jointId = 1000 - jointsid; //
+                  } else {
+                    pjoint->jointId = jointsid;
+                  }
 		} else {
 		    pjoint->jointId = ijointindex - 1;
 		}
@@ -1086,6 +1090,10 @@ class ColladaReader : public daeErrorHandler
                     else {
                         COLLADALOG_VERBOSE(str(boost::format("There are NO LIMITS in joint %s:%d ...")%pjoint->name%kinematics_limits));
                     }
+                }
+                // set fixed joint
+                if (pjoint->llimit[ic] == 0.0 && pjoint->ulimit[ic] == 0.0) {
+                  pjoint->jointType = CORBA::string_dup("fixed");
                 }
             }
             if( pdomlink->getAttachment_start_array().getCount() > 0 ) {
